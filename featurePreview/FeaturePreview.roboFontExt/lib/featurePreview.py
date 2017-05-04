@@ -11,8 +11,10 @@ from defconAppKit.controls.openTypeControlsView import OpenTypeControlsView
 from defconAppKit.controls.glyphSequenceEditText import GlyphSequenceEditText
 from defconAppKit.controls.glyphLineView import GlyphLineView
 
-from lib.fontObjects.doodleFontCompiler.emptyCompiler import EmptyOTFCompiler
-
+#from lib.fontObjects.doodleFontCompiler.emptyCompiler import EmptyOTFCompiler
+from fontCompiler.emptyCompiler import EmptyOTFCompiler
+from fontCompiler.compiler import FontCompilerOptions
+from lib.tools.compileTools import CurrentFDK
 
 class FeatureTester(BaseWindowController):
 
@@ -105,11 +107,14 @@ class FeatureTester(BaseWindowController):
         # compile
         path = tempfile.mkstemp()[1]
         compiler = EmptyOTFCompiler()
+        options = FontCompilerOptions()
+        options.fdk = CurrentFDK()
+        options.outputPath = path
         # clean up
         if self.font.info.openTypeOS2WinDescent is not None and self.font.info.openTypeOS2WinDescent < 0:
             self.font.info.openTypeOS2WinDescent = abs(self.font.info.openTypeOS2WinDescent)
         self.font.info.postscriptNominalWidthX = None
-        reports = compiler.compile(self.font, path)
+        reports = compiler.compile(self.font, options)
         # load the compiled font
         if os.path.exists(path) and reports["makeotf"] is not None and "makeotfexe [FATAL]" not in reports["makeotf"]:
             self.featureFont = FeatureFont(path)
